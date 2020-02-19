@@ -50,8 +50,17 @@ export abstract class TopContent extends Content {
 
   cloneWithFollowUp(newFollowUp: FollowUp): TopContent {
     const clone = shallowClone(this)
-    ;(clone as any).common = shallowClone(clone.common)
-    ;(clone as any).common.followUp = newFollowUp
+
+    // @ts-ignore
+    clone.common = shallowClone(clone.common)
+    if (this.common.followUp) {
+      const followUp = this.common.followUp.cloneWithFollowUp(
+        newFollowUp
+      ) as FollowUp
+      clone.common.followUp = followUp
+    } else {
+      clone.common.followUp = newFollowUp
+    }
     return clone
   }
 }

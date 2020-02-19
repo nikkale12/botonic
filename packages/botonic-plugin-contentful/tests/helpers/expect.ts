@@ -1,3 +1,5 @@
+import 'jest-expect-message'
+
 export function expectEqualExceptOneField(
   o1: any,
   o2: any,
@@ -5,6 +7,7 @@ export function expectEqualExceptOneField(
 ): void {
   for (const f of Object.keys(o1)) {
     if (f == fieldName) continue
-    expect(o2[f]).toEqual(o1[f])
+    // eslint-disable-next-line jest/valid-expect
+    expect(o2[f], `for field '${f}'`).toEqual(o1[f])
   }
 }

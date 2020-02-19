@@ -1,6 +1,6 @@
 import { instance, mock, when } from 'ts-mockito'
 import { Content, Text } from '../../src/cms'
-import { RndTextBuilder } from '../../src/cms/test-helpers/builders'
+import { rndBool, RndTextBuilder } from '../../src/cms/test-helpers/builders'
 import { expectEqualExceptOneField } from '../helpers/expect'
 
 test('TEST: cloneWithButtons copies all fields except buttons', () => {
@@ -34,21 +34,53 @@ test('TEST: cloneWithText copies all fields except text', () => {
 })
 
 test('TEST: cloneWithFollowUp copies all fields except followUp', () => {
-  const builder = new RndTextBuilder().withRandomFields()
+  const builder = new RndTextBuilder().withRandomFields(false)
   const t1 = builder.build()
-  const oldFollowUp = t1.common.followUp
   expect(t1).toBeInstanceOf(Text)
+  const followUpHasFollowUp = rndBool()
+  const newFollowUp = builder.withRandomFields(followUpHasFollowUp).build()
 
-  const newFollowUp = builder.build()
+  // act
   const clone = t1.cloneWithFollowUp(newFollowUp)
+  // clone = t1-> newFollowUp
 
+  // assert
   expect(clone).toBeInstanceOf(Text)
   expect(clone.common.followUp).toBe(newFollowUp)
+  if (followUpHasFollowUp) {
+    expect(clone.common.followUp?.common.followUp).toBe(newFollowUp.common.followUp)
   expect(clone).not.toEqual(t1)
-  expect(t1.common.followUp).toBe(oldFollowUp)
+  // assert original contents are not altered
+  expect(t1.common.followUp).toBe(undefined)
 
   expectEqualExceptOneField(t1, clone, 'common')
   expectEqualExceptOneField(t1.common, clone.common, 'followUp')
+})
+
+test('TEST: cloneWithFollowUp on a content with followUp', () => {
+  // t1->oldFollowUp
+  const builder = new RndTextBuilder().withRandomFields(true)
+  const t1 = builder.build()
+  const oldFollowUp = t1.common.followUp!
+  expect(t1).toBeInstanceOf(Text)
+  const newFollowUp = builder.withRandomFields(false).build()
+
+  // act
+  const clone = t1.cloneWithFollowUp(newFollowUp)
+  //clone=t1->oldFollowUp->newFollowUp
+
+  // assert
+  expectEqualExceptOneField(t1, clone, 'common')
+  expectEqualExceptOneField(t1.common, clone.common, 'followUp')
+  expectEqualExceptOneField(oldFollowUp, clone.common.followUp, 'common')
+  expectEqualExceptOneField(
+    oldFollowUp.common,
+    clone.common.followUp!.common,
+    'followUp'
+  )
+  expect(clone.common.followUp?.common.followUp).toBe(newFollowUp)
+  // assert original contents are not altered
+  expect(t1.common.followUp).toBe(oldFollowUp)
 })
 
 test('TEST: validateContents', () => {

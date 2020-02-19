@@ -96,15 +96,22 @@ export class RndTextBuilder extends TextBuilder {
     return super.build()
   }
 
-  withRandomFields(): RndTextBuilder {
+  withRandomFields(withFollowup?: boolean): RndTextBuilder {
     if (!this.buttonsBuilder) {
       this.buttonsBuilder = new RndButtonsBuilder().addButton().addButton()
     }
     this.shortText = rndStr()
     this.keywords = this.keywordsBuilder.build()
-    this.followUp = rndBool()
-      ? undefined
-      : new Text(new CommonFields(rndStr(), rndStr()), rndStr(), [])
+    if (withFollowup == undefined) {
+      withFollowup = rndBool()
+    }
+    if (withFollowup) {
+      this.followUp = new Text(
+        new CommonFields(rndStr(), rndStr()),
+        rndStr(),
+        []
+      )
+    }
     this.buttonsStyle = rndBool() ? ButtonStyle.QUICK_REPLY : ButtonStyle.BUTTON
     return this
   }
