@@ -3,8 +3,8 @@ import React from 'react'
 import { render } from 'react-dom'
 import { BrowserRouter, Route } from 'react-router-dom'
 
-import { getString } from '@botonic/core'
-import { params2queryString } from '@botonic/core'
+import { getString, params2queryString } from '@botonic/core'
+
 import { RequestContext } from './contexts'
 
 class App extends React.Component {
